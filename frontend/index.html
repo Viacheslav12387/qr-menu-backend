@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Lista Produktów</title>
+</head>
+
+<body>
+    <h1>🛒 Dodaj produkt</h1>
+    <input id="name" placeholder="Nazwa">
+    <input id="quantity" type="number" placeholder="Ilość">
+    <button onclick="dodaj()">Dodaj</button>
+
+    <h2>📋 Lista produktów:</h2>
+    <ul id="lista"></ul>
+
+    <script>
+        async function dodaj() {
+            const name = document.getElementById('name').value;
+            const quantity = parseInt(document.getElementById('quantity').value);
+
+            await fetch("http://127.0.0.1:8000/produkty/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, quantity })
+            });
+
+            pokaz(); // odśwież listę
+        }
+
+        async function pokaz() {
+            const res = await fetch("http://127.0.0.1:8000/produkty/");
+            const produkty = await res.json();
+
+            const ul = document.getElementById("lista");
+            ul.innerHTML = "";
+            produkty.forEach(p => {
+                ul.innerHTML += `<li>${p.name} – ${p.quantity}</li>`;
+            });
+        }
+
+        pokaz(); // pokaż produkty przy starcie
+    </script>
+
+    <script>
+        async function pokaz() {
+            const res = await fetch("http://127.0.0.1:8000/produkty/");
+            const produkty = await res.json();
+
+            const ul = document.getElementById("lista");
+            ul.innerHTML = "";
+            produkty.forEach(p => {
+                ul.innerHTML += `
+      <li>
+        ${p.name} – ${p.quantity}
+        <button onclick="usun(${p.id})">🗑</button>
+      </li>`;
+            });
+        }
+        async function usun(id) {
+            await fetch(`http://127.0.0.1:8000/produkty/${id}`, {
+                method: "DELETE"
+            });
+            pokaz();
+        }
+
+    </script>
+
+</body>
+
+</html>
